@@ -1,0 +1,2 @@
+-- Datos iniciales para desarrollo.
+
