@@ -2,10 +2,42 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Database = {
   public: {
-    Tables: Record<string, never>;
+    Tables: {
+      usuarios: {
+        Row: {
+          id: string;
+          nombre: string;
+          email: string;
+          rol: "admin" | "bibliotecario" | "estudiante";
+          matricula: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          nombre: string;
+          email: string;
+          rol?: "admin" | "bibliotecario" | "estudiante";
+          matricula?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          nombre?: string;
+          email?: string;
+          rol?: "admin" | "bibliotecario" | "estudiante";
+          matricula?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+    };
     Views: Record<string, never>;
     Functions: Record<string, never>;
-    Enums: Record<string, never>;
+    Enums: {
+      rol_usuario: "admin" | "bibliotecario" | "estudiante";
+    };
   };
 };
-

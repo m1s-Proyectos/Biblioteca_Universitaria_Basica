@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { ROLE_HOME_ROUTES } from "@/lib/auth/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { RolUsuario } from "@/types/auth";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -33,16 +35,36 @@ export function LoginForm() {
     }
 
     const supabase = createBrowserSupabaseClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword(parsed.data);
-
-    setLoading(false);
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword(parsed.data);
 
     if (signInError) {
+      setLoading(false);
       setError(signInError.message);
       return;
     }
 
-    router.push("/dashboard");
+    const userId = signInData.user?.id;
+    if (!userId) {
+      setLoading(false);
+      setError("No se pudo obtener la sesion del usuario.");
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("usuarios")
+      .select("rol")
+      .eq("id", userId)
+      .single();
+
+    setLoading(false);
+
+    if (profileError || !profile?.rol) {
+      await supabase.auth.signOut();
+      setError("Tu usuario no tiene perfil en el sistema. Contacta al administrador.");
+      return;
+    }
+
+    router.push(ROLE_HOME_ROUTES[profile.rol as RolUsuario]);
     router.refresh();
   }
 
@@ -57,4 +79,3 @@ export function LoginForm() {
     </form>
   );
 }
-

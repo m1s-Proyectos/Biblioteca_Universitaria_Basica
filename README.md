@@ -2,6 +2,9 @@
 
 Proyecto base del Sistema de Gestion de Biblioteca Universitaria (SGBU) en version web.
 
+> **Guia del equipo:** lee el plan completo en [`docs/SGBU-Plan-de-Implementacion.pdf`](docs/SGBU-Plan-de-Implementacion.pdf).  
+> Ahi encontraras las fases del proyecto, arquitectura, flujo de trabajo Git, usuarios de prueba y el estado actual (Fase 1 completada).
+
 El repositorio contiene el esqueleto profesional inicial para trabajar en equipo. La logica funcional completa de modulos como libros, prestamos, multas, reportes y administracion se implementara progresivamente.
 
 ## Stack Tecnologico
@@ -125,9 +128,12 @@ Luego crear un Pull Request hacia `main`.
 
 ## Estado Actual
 
-- Estructura base creada.
+- Estructura base creada (Fase 0 completada).
+- **Fase 1 completada:** autenticacion real, usuarios, roles, JWT, logout, guards.
 - Frontend Next.js compilando.
 - Backend Spring Boot levantando correctamente.
 - Swagger y endpoint de salud disponibles.
-- Migraciones Supabase iniciales creadas como placeholders.
+- Migracion `usuarios` aplicada; migraciones 002-007 pendientes (Fase 2+).
+
+Usuarios de prueba y detalle de la Fase 1: ver [`docs/SGBU-Plan-de-Implementacion.pdf`](docs/SGBU-Plan-de-Implementacion.pdf) seccion 14.
 

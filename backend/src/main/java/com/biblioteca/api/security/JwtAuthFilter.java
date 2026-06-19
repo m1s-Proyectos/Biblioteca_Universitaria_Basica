@@ -25,11 +25,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwtService.authenticate(authorizationHeader.substring(7))
-                    .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication));
+            String token = authorizationHeader.substring(7);
+            var authentication = jwtService.authenticate(token);
+
+            if (authentication.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token JWT invalido o usuario no registrado");
+                return;
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(authentication.get());
         }
 
         filterChain.doFilter(request, response);
     }
 }
-
