@@ -3,9 +3,9 @@
 Proyecto base del Sistema de Gestion de Biblioteca Universitaria (SGBU) en version web.
 
 > **Guia del equipo:** lee el plan completo en [`docs/SGBU-Plan-de-Implementacion.pdf`](docs/SGBU-Plan-de-Implementacion.pdf).  
-> Ahi encontraras las fases del proyecto, arquitectura, flujo de trabajo Git, usuarios de prueba y el estado actual (Fase 1 completada).
+> Ahi encontraras las fases del proyecto, arquitectura, flujo de trabajo Git, usuarios de prueba y el estado actual (**Fase 2 completada**).
 
-El repositorio contiene el esqueleto profesional inicial para trabajar en equipo. La logica funcional completa de modulos como libros, prestamos, multas, reportes y administracion se implementara progresivamente.
+El repositorio contiene el SGBU en desarrollo progresivo por fases. Los modulos de ejemplares, prestamos, multas, reservas, reportes y administracion avanzada se implementaran en fases posteriores.
 
 ## Stack Tecnologico
 
@@ -82,8 +82,11 @@ http://localhost:3000
 ```powershell
 cd backend
 Copy-Item .env.example .env
-mvn spring-boot:run
+# Completar credenciales de Supabase en .env
+.\run-local.ps1
 ```
+
+> **Conexion a Supabase:** en redes IPv4-only usa el **Session pooler** del dashboard (host `aws-1-*.pooler.supabase.com`, usuario `postgres.[project-ref]`). La conexion directa `db.[ref].supabase.co` puede fallar en entornos locales.
 
 Health check:
 
@@ -128,12 +131,33 @@ Luego crear un Pull Request hacia `main`.
 
 ## Estado Actual
 
-- Estructura base creada (Fase 0 completada).
-- **Fase 1 completada:** autenticacion real, usuarios, roles, JWT, logout, guards.
-- Frontend Next.js compilando.
-- Backend Spring Boot levantando correctamente.
-- Swagger y endpoint de salud disponibles.
-- Migracion `usuarios` aplicada; migraciones 002-007 pendientes (Fase 2+).
+| Fase | Estado | Contenido |
+|------|--------|-----------|
+| 0 | Completada | Monorepo, CI, Docker, health check, Swagger |
+| 1 | Completada | Auth Supabase, JWT ES256/JWKS, roles, guards, `/auth/me` |
+| **2** | **Completada** | **Catalogo bibliografico (libros, autores, categorias, editoriales)** |
+| 3-8 | Pendiente | Ejemplares, prestamos, multas, reservas, reportes, auditoria |
 
-Usuarios de prueba y detalle de la Fase 1: ver [`docs/SGBU-Plan-de-Implementacion.pdf`](docs/SGBU-Plan-de-Implementacion.pdf) seccion 14.
+### Fase 2 — Catalogo de libros
+
+**Base de datos:** migracion `20260618000200_create_libros.sql` (tablas `autores`, `categorias`, `editoriales`, `libros`).
+
+**Backend:** API REST `/api/v1/libros` con filtros, paginacion, ordenamiento, CRUD y baja logica. Endpoints de referencias para formularios. Seguridad: admin y bibliotecario (CRUD), estudiante (solo lectura).
+
+**Frontend:**
+
+- `/libros` — gestion completa (admin / bibliotecario)
+- `/catalogo` — consulta publica (estudiante)
+
+**Seed:** `supabase/seed/seed.sql` incluye 3 libros de ejemplo junto a los usuarios de prueba.
+
+Usuarios de prueba y detalle de fases: ver [`docs/SGBU-Plan-de-Implementacion.pdf`](docs/SGBU-Plan-de-Implementacion.pdf) seccion 14.
+
+### Rutas utiles (local)
+
+| Rol | Ruta principal | Credenciales dev |
+|-----|----------------|------------------|
+| Admin | `/admin`, `/libros` | `admin@sgbu.dev` / `Admin123!` |
+| Bibliotecario | `/biblioteca`, `/libros` | `bibliotecario@sgbu.dev` / `Biblio123!` |
+| Estudiante | `/catalogo` | `estudiante1@sgbu.dev` / `Est123!` |
 

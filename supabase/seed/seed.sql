@@ -151,3 +151,78 @@ WHERE email = 'estudiante1@sgbu.dev';
 
 UPDATE public.usuarios SET rol = 'estudiante', nombre = 'Estudiante Dos', matricula = 'EST-002'
 WHERE email = 'estudiante2@sgbu.dev';
+
+-- Seed catalogo bibliografico (Fase 2)
+
+INSERT INTO public.autores (id, nombre, apellido, nacionalidad, fecha_nacimiento, activo)
+VALUES
+  ('b1000000-0000-0000-0000-000000000001', 'Gabriel', 'Garcia Marquez', 'Colombiana', '1927-03-06', true),
+  ('b1000000-0000-0000-0000-000000000002', 'Isabel', 'Allende', 'Chilena', '1942-08-02', true),
+  ('b1000000-0000-0000-0000-000000000003', 'Jorge Luis', 'Borges', 'Argentina', '1899-08-24', true)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.categorias (id, nombre, descripcion, activo)
+VALUES
+  ('b2000000-0000-0000-0000-000000000001', 'Literatura', 'Obras narrativas y poeticas', true),
+  ('b2000000-0000-0000-0000-000000000002', 'Ciencia', 'Divulgacion y textos cientificos', true),
+  ('b2000000-0000-0000-0000-000000000003', 'Historia', 'Analisis historico y biografias', true)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.editoriales (id, nombre, pais, sitio_web, activo)
+VALUES
+  ('b3000000-0000-0000-0000-000000000001', 'Alfaguara', 'Espana', 'https://www.alfaguara.com', true),
+  ('b3000000-0000-0000-0000-000000000002', 'Planeta', 'Espana', 'https://www.planeta.es', true),
+  ('b3000000-0000-0000-0000-000000000003', 'Sudamericana', 'Argentina', 'https://www.penguinrandomhouse.com', true)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.libros (
+  id, isbn, titulo, subtitulo, descripcion, anio_publicacion, idioma,
+  numero_paginas, portada_url, autor_id, categoria_id, editorial_id, activo
+)
+VALUES
+  (
+    'b4000000-0000-0000-0000-000000000001',
+    '978-84-376-0494-7',
+    'Cien anos de soledad',
+    NULL,
+    'La saga de la familia Buendia en Macondo.',
+    1967,
+    'es',
+    471,
+    NULL,
+    'b1000000-0000-0000-0000-000000000001',
+    'b2000000-0000-0000-0000-000000000001',
+    'b3000000-0000-0000-0000-000000000001',
+    true
+  ),
+  (
+    'b4000000-0000-0000-0000-000000000002',
+    '978-84-01-38036-8',
+    'La casa de los espiritus',
+    NULL,
+    'Cronica de la familia Trueba a lo largo de generaciones.',
+    1982,
+    'es',
+    433,
+    NULL,
+    'b1000000-0000-0000-0000-000000000002',
+    'b2000000-0000-0000-0000-000000000001',
+    'b3000000-0000-0000-0000-000000000002',
+    true
+  ),
+  (
+    'b4000000-0000-0000-0000-000000000003',
+    '978-84-376-0494-8',
+    'Ficciones',
+    NULL,
+    'Coleccion de cuentos de fantasia y laberintos.',
+    1944,
+    'es',
+    174,
+    NULL,
+    'b1000000-0000-0000-0000-000000000003',
+    'b2000000-0000-0000-0000-000000000001',
+    'b3000000-0000-0000-0000-000000000003',
+    true
+  )
+ON CONFLICT (id) DO NOTHING;

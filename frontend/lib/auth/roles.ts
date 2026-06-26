@@ -28,6 +28,7 @@ export function getNavLinksForRole(rol: RolUsuario): { href: string; label: stri
     case "admin":
       return [
         { href: "/admin", label: "Admin" },
+        { href: "/libros", label: "Libros" },
         { href: "/reportes", label: "Reportes" },
         { href: "/dashboard", label: "Dashboard" }
       ];

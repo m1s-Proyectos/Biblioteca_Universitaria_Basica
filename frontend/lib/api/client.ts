@@ -17,10 +17,23 @@ type ApiFetchOptions = RequestInit & {
 async function getAccessToken(): Promise<string | null> {
   const { createBrowserSupabaseClient } = await import("@/lib/supabase/client");
   const supabase = createBrowserSupabaseClient();
+
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return null;
+  }
+
   const {
     data: { session }
   } = await supabase.auth.getSession();
-  return session?.access_token ?? null;
+  if (session?.access_token) {
+    return session.access_token;
+  }
+
+  const { data: refreshed } = await supabase.auth.refreshSession();
+  return refreshed.session?.access_token ?? null;
 }
 
 async function handleUnauthorized(): Promise<never> {
@@ -53,6 +66,39 @@ export async function apiFetch<T>(path: string, init?: ApiFetchOptions): Promise
     headers
   });
 
+  if (response.status === 401 && auth) {
+    const { createBrowserSupabaseClient } = await import("@/lib/supabase/client");
+    const supabase = createBrowserSupabaseClient();
+    const { data: refreshed } = await supabase.auth.refreshSession();
+    const retryToken = refreshed.session?.access_token;
+
+    if (retryToken) {
+      headers.set("Authorization", `Bearer ${retryToken}`);
+      const retryResponse = await fetch(`${API_URL}${path}`, {
+        ...requestInit,
+        headers
+      });
+
+      if (retryResponse.ok) {
+        return retryResponse.json() as Promise<T>;
+      }
+
+      if (retryResponse.status !== 401) {
+        let message = `API error: ${retryResponse.status}`;
+        try {
+          const problem = (await retryResponse.json()) as { detail?: string; title?: string };
+          if (problem.detail) message = problem.detail;
+          else if (problem.title) message = problem.title;
+        } catch {
+          // respuesta no JSON
+        }
+        throw new ApiError(message, retryResponse.status);
+      }
+    }
+
+    return handleUnauthorized();
+  }
+
   if (response.status === 401) {
     return handleUnauthorized();
   }
@@ -62,7 +108,18 @@ export async function apiFetch<T>(path: string, init?: ApiFetchOptions): Promise
   }
 
   if (!response.ok) {
-    throw new ApiError(`API error: ${response.status}`, response.status);
+    let message = `API error: ${response.status}`;
+    try {
+      const problem = (await response.json()) as { detail?: string; title?: string };
+      if (problem.detail) {
+        message = problem.detail;
+      } else if (problem.title) {
+        message = problem.title;
+      }
+    } catch {
+      // respuesta no JSON
+    }
+    throw new ApiError(message, response.status);
   }
 
   return response.json() as Promise<T>;
